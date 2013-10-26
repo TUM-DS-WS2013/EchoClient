@@ -3,8 +3,10 @@ package communication;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import CustomExceptions.ServerConnectionException;
 
 public class EchoSocketClient
 {
@@ -19,15 +21,42 @@ public class EchoSocketClient
         objSocketOutPutStream = null;
     }
    
-    public void Connect(String strIP, int nPortNumber) throws UnknownHostException,
-              IOException
+    public String GetServerIP() 
+    { 
+        String strServerIP = new String();
+        if (objSocketClient != null)
+        {
+            InetAddress address;
+            address = objSocketClient.getInetAddress();
+            strServerIP = address.getHostAddress();
+        }
+        return strServerIP;
+    }
+    
+    public int GetServerPort()
+    { 
+        int nServerPort = 0;
+        if (objSocketClient != null)
+        {
+           nServerPort = objSocketClient.getPort();
+        }
+        return nServerPort; 
+    }
+    
+    public String Connect(String strIP, int nPortNumber) throws UnknownHostException,
+              IOException, ServerConnectionException
     {
+        String outputMsg;
         if (objSocketClient == null && !strIP.isEmpty())
         {
             objSocketClient = new Socket(strIP, nPortNumber);
             objSocketInputStream = objSocketClient.getInputStream();
             objSocketOutPutStream = objSocketClient.getOutputStream();
+            outputMsg = RecieveMessage();
         }
+        else
+            outputMsg = "Server already connected!";
+        return outputMsg;
     }
     
     public void DisConnect() throws IOException
@@ -44,31 +73,54 @@ public class EchoSocketClient
         objSocketClient = null;
     }
     
-    public void SendMessage(String strMessage)throws IOException
+    public void SendMessage(String strMessage) throws IOException, ServerConnectionException
     {
-        if (!strMessage.isEmpty()&& objSocketOutPutStream != null)
+        if (objSocketOutPutStream != null)
         {
             byte[] msgBytes = strMessage.getBytes();
             objSocketOutPutStream.write(msgBytes);
+            objSocketOutPutStream.write(0x0D);
             objSocketOutPutStream.flush();
         }
+        else 
+            throw new ServerConnectionException("Error! Not connected!");
     }
     
-    public String RecieveMessage() throws IOException
+    public String RecieveMessage() throws IOException, ServerConnectionException
     {
         String strRecvMsg = new String();
-        if (objSocketInputStream != null && objSocketInputStream.available() > 0)
+        
+        if (objSocketInputStream != null)
         {
-            byte[] recieveMsgBytes = new byte[objSocketInputStream.available()];
-            int readBytes = objSocketInputStream.read(recieveMsgBytes);
+            byte []recieveMsgBytes;
+            byte[] readBuf1 = new byte[1];
+            int readBytes = objSocketInputStream.read(readBuf1);
+            if (objSocketInputStream.available() > 0)
+            {
+                byte[] readBuf2 = new byte[objSocketInputStream.available()];
+                readBytes = objSocketInputStream.read(readBuf2);
+                recieveMsgBytes = new byte[readBuf2.length + readBuf1.length];
+                System.arraycopy(readBuf1, 0, recieveMsgBytes, 0, 1);
+                System.arraycopy(readBuf2, 0, recieveMsgBytes, 1, readBuf2.length);
+            }
+            else
+            {
+                recieveMsgBytes = new byte[1];
+                recieveMsgBytes[0] = readBuf1[0];
+            }
+            
             if (readBytes != 0 && readBytes != -1)
-                strRecvMsg = recieveMsgBytes.toString();
+            {
+                strRecvMsg = new String(recieveMsgBytes, 0, recieveMsgBytes.length-2);
+            }
         }
+        else 
+            throw new ServerConnectionException("Error! Not connected!");
         
         return strRecvMsg;
     }
     
-    public String SendRecvMessage(String strMessage) throws IOException
+    public String SendRecvMessage(String strMessage) throws IOException, ServerConnectionException
     {
         SendMessage(strMessage);
         return RecieveMessage();
