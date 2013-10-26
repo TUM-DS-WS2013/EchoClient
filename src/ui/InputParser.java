@@ -9,21 +9,52 @@ public final class InputParser {
      * The array of valid commands signatures
      */
     private static final ValidCommand[] VALID_COMMANDS = {
-        new ValidCommand("connect", 2),
-        new ValidCommand("disconnect"),
-        new ValidCommand("send", 1, true),
-        new ValidCommand("logLevel", 1),
-        new ValidCommand("help"),
-        new ValidCommand("quit")
+        new ValidCommand("connect",
+                "connect <server> <port>    - Connect to the echo server with "
+                        + "network address <server> on port <port>.",
+                2),
+        new ValidCommand("disconnect",
+                "disconnect                 - Disconnect from the echo server"),
+        new ValidCommand("send",
+                "send <message>             - Send the specified <message> to "
+                        + "the echo server.",
+                1, 0, true),
+        new ValidCommand("logLevel",
+                "logLevel <level>           - Change logging level to <level>.",
+                1),
+        new ValidCommand("help",
+                "help [command]             - Print general help text or help "
+                        + "for a specified [command].",
+                0, 1),
+        new ValidCommand("quit",
+                "quit                       - Exit the application.")
     };
     
     /**
-     * Private constructor restricts instantiation of the class
+     * Prints help text for command line interface.
+     * @param commandString Name of a command to print help for. May be null,
+     *      in which case a general help text will be printed.
      */
-    private InputParser() {}
-    
-    private static void printHelpMessage() {
-        System.out.println("TODO: Help text!");
+    private static void printHelpMessage(String commandString) {
+        ValidCommand    command = null;
+        
+        if (commandString != null) {
+            command = findCommandByName(commandString);
+        }
+        
+        if (command != null) {
+            System.out.println(command.helpText);
+        } else {
+            if (commandString != null) {
+                System.out.println("Error! Command \""+ commandString + 
+                        "\" is not valid!");
+            }
+            System.out.println("    USAGE");
+            for (ValidCommand validCommand : VALID_COMMANDS) {
+                System.out.println(validCommand.helpText);
+            }
+        }
+        
     }
     
     /**
@@ -44,16 +75,9 @@ public final class InputParser {
         }
         
         // Split the input into tokens
+        input = input.trim();
         String          commandString = input.split("\\s+", 2)[0];
-        ValidCommand    command = null;
-
-        // Try to find the command
-        for (ValidCommand validCommand : VALID_COMMANDS) {
-            if (commandString.equalsIgnoreCase(validCommand.name)) {
-                command = validCommand;
-                break;
-            }
-        }
+        ValidCommand    command = findCommandByName(commandString);
         
         // If command is not found print error message and return
         if (command == null) {
@@ -63,14 +87,15 @@ public final class InputParser {
             return null;
         }
         
+        // Split the input into command and arguments
+        String  tokens[] = input.split("\\s+", 1 + command.argCount
+                                       + command.optArgCount);
+        
         // If the command equals "help" then print help text and return nothing
         if (command.name.equals("help")) {
-            InputParser.printHelpMessage();
+            printHelpMessage(tokens.length > 1 ? tokens[1] : null);
             return null;
         }
-        
-        // Split the input into command and arguments
-        String  tokens[] = input.split("\\s+", 1 + command.argCount);
         
         // Check the number of arguments
         if (tokens.length < (1 + command.argCount)) {
@@ -91,24 +116,57 @@ public final class InputParser {
     }
     
     /**
+     * Tries to find the command signature given the command name
+     * @param commandName Name of the command to find
+     * @return Signature of a found command (ValidCommand object) or null.
+     */
+    private static ValidCommand findCommandByName(String commandName) {
+        ValidCommand    command = null;
+        
+        for (ValidCommand validCommand : VALID_COMMANDS) {
+            if (commandName.equalsIgnoreCase(validCommand.name)) {
+                command = validCommand;
+                break;
+            }
+        }
+        
+        return command;
+    }
+    
+    /**
+     * Private constructor restricts instantiation of the class
+     */
+    private InputParser() {}
+    
+    /**
      * Private class representing a valid command and its signature.
      */
     private static class ValidCommand {
         public String name;
+        public String helpText;
         public int argCount;
+        public int optArgCount;
         public boolean greedyLastArg;
 
-        ValidCommand(String name) {
-            this(name, 0, false);
+        ValidCommand(String name, String helpText) {
+            this(name, helpText, 0, 0, false);
         }
         
-        ValidCommand(String name, int argCount) {
-            this(name, argCount, false);
+        ValidCommand(String name, String helpText, int argCount) {
+            this(name, helpText, argCount, 0, false);
         }
         
-        ValidCommand(String name, int argCount, boolean greedyLastArg) {
+        ValidCommand(String name, String helpText, int argCount, 
+                int optArgCount) {
+            this(name, helpText, argCount, optArgCount, false);
+        }
+        
+        ValidCommand(String name, String helpText, int argCount, 
+                int optArgCount, boolean greedyLastArg) {
             this.name = name;
+            this.helpText = helpText;
             this.argCount = argCount;
+            this.optArgCount = optArgCount;
             this.greedyLastArg = greedyLastArg;
         }
     }
