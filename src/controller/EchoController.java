@@ -9,9 +9,10 @@ public class EchoController
 {
     private final EchoSocketClient objSocketClient;
     
-    public EchoController()
+    public EchoController() throws IOException
     {
         objSocketClient = new EchoSocketClient();
+        EchoLogger.setupLogger();
     }
     
     public String ProcessMessages(String[] inputMessage)
@@ -37,25 +38,30 @@ public class EchoController
             }
             else if (inputMessage[0].compareToIgnoreCase("logLevel") == 0)
             {
-
+                output = EchoLogger.setLogLevel(inputMessage[1]);
             }
             else if (inputMessage[0].compareToIgnoreCase("quit") == 0)
             {
                 objSocketClient.DisConnect();
                 output = "Application exit!";
             }
+            
+            EchoLogger.info(output);
         }
         catch (ServerConnectionException serverNotConnectedEx)
         {
             output = serverNotConnectedEx.GetErrorMsg();
+            EchoLogger.error(output);
         }
         catch (UnknownHostException hostException)
         {
             output = "Error! See the log file for details";
+            EchoLogger.error(hostException.getMessage());
         }
         catch(IOException ioexception)
         {
             output = "Error! See the log file for details";
+            EchoLogger.error(ioexception.getMessage());
         }
 
         return output;
