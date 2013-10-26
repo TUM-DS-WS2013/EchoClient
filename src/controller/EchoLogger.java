@@ -45,11 +45,14 @@ public final class EchoLogger {
 //</editor-fold>
     
     /**
-     * 
-     * @param levelString 
+     * Changes logging level
+     * @param levelString New logging level name.
+     * @return Info string
      */
-    public void setLogLevel(String levelString) {
+    public static String setLogLevel(String levelString) {
+        String resultString = null;
         Level level = null;
+        
         if (levelString.equalsIgnoreCase("all")) {
             level = Level.ALL;
         } else if (levelString.equalsIgnoreCase("debug")) {
@@ -65,13 +68,16 @@ public final class EchoLogger {
         } else if (levelString.equalsIgnoreCase("off")) {
             level = Level.OFF;
         } else {
-            System.out.println("Error! Logging level \"" + levelString 
-                    + "\" is n ot valid.");
+            resultString = "Error! Logging level \"" + levelString 
+                    + "\" is n ot valid.";
         }
         
         if (level != null) {
-            logger.setLevel(Level.DEBUG);
+            logger.setLevel(level);
+            resultString = "Logging level changed to \"" + levelString + "\".";
         }
+        
+        return resultString;
     }
     
     /**
