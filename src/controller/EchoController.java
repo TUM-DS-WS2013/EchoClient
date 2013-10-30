@@ -5,16 +5,30 @@ import communication.EchoSocketClient;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+/**
+ *Controller of application. It's responsible for routing the commands to their 
+ *respective modules.
+ */
+
 public class EchoController
 {
     private final EchoSocketClient objSocketClient;
-    
+  
+    /**
+     * Constructor of controller class.
+     * @throws IOException 
+     */
     public EchoController() throws IOException
     {
         objSocketClient = new EchoSocketClient();
         EchoLogger.setupLogger();
     }
     
+    /**
+     * It processes the messages and routes the command to their respective modules.
+     * @param inputMessage array of string with the commands and parameters.
+     * @return information String 
+     */
     public String ProcessMessages(String[] inputMessage)
     {
         String output = new String();
@@ -29,8 +43,7 @@ public class EchoController
             else if (inputMessage[0].compareToIgnoreCase("disconnect") == 0)
             {
                 objSocketClient.DisConnect();
-                output = "Connection terminated: "+ objSocketClient.GetServerIP() + 
-                        " /"+ Integer.toString(objSocketClient.GetServerPort());
+                output = "Connection terminated!";
             }
             else if (inputMessage[0].compareToIgnoreCase("send") == 0)
             {

@@ -8,6 +8,9 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import CustomExceptions.ServerConnectionException;
 
+/**
+ * This class is responsible for communication via Sockets.
+ */
 public class EchoSocketClient
 {
     private Socket objSocketClient;
@@ -21,6 +24,10 @@ public class EchoSocketClient
         objSocketOutPutStream = null;
     }
    
+    /**
+     * Get the IP address of server.
+     * @return the IP address of server to whom socket is connected.
+     */
     public String GetServerIP() 
     { 
         String strServerIP = new String();
@@ -33,6 +40,10 @@ public class EchoSocketClient
         return strServerIP;
     }
     
+    /**
+     * Get the port number of server.
+     * @return port number to whom the socket is connected.
+     */
     public int GetServerPort()
     { 
         int nServerPort = 0;
@@ -43,6 +54,15 @@ public class EchoSocketClient
         return nServerPort; 
     }
     
+    /**
+     * Try to establish a connection with server.
+     * @param strIP IP address of server.
+     * @param nPortNumber port number of the server.
+     * @return information string.
+     * @throws UnknownHostException
+     * @throws IOException
+     * @throws ServerConnectionException 
+     */
     public String Connect(String strIP, int nPortNumber) throws UnknownHostException,
               IOException, ServerConnectionException
     {
@@ -59,6 +79,10 @@ public class EchoSocketClient
         return outputMsg;
     }
     
+    /**
+     * Disconnect from the server to whom socket is connected.
+     * @throws IOException 
+     */
     public void DisConnect() throws IOException
     {
         if (objSocketInputStream != null)
@@ -73,6 +97,12 @@ public class EchoSocketClient
         objSocketClient = null;
     }
     
+    /**
+     * Send the message to the server to whom socket is connected.
+     * @param strMessage Message which has to be send to server.
+     * @throws IOException
+     * @throws ServerConnectionException 
+     */
     public void SendMessage(String strMessage) throws IOException, ServerConnectionException
     {
         if (objSocketOutPutStream != null)
@@ -86,6 +116,12 @@ public class EchoSocketClient
             throw new ServerConnectionException("Error! Not connected!");
     }
     
+    /**
+     * Receive the message from the server to whom socket is connected.
+     * @return Read message from the server.
+     * @throws IOException
+     * @throws ServerConnectionException 
+     */
     public String RecieveMessage() throws IOException, ServerConnectionException
     {
         String strRecvMsg = new String();
@@ -120,6 +156,13 @@ public class EchoSocketClient
         return strRecvMsg;
     }
     
+    /**
+     * Send and receive the message to/from the server respectively.
+     * @param strMessage Message which has to be send to server.
+     * @return Read message from the server.
+     * @throws IOException
+     * @throws ServerConnectionException 
+     */
     public String SendRecvMessage(String strMessage) throws IOException, ServerConnectionException
     {
         SendMessage(strMessage);
