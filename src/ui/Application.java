@@ -5,11 +5,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 
-//import org.apache.log4j.Logger;
-
+/**
+ * Main class
+ * @author klem
+ */
 public class Application {
 
     /**
+     * Main program method
      * @param args the command line arguments
      */
     public static void main(String[] args) {
@@ -17,8 +20,7 @@ public class Application {
         BufferedReader in =
                 new BufferedReader(new InputStreamReader(System.in));
         String userInput;
-        try
-        {
+        try {
             EchoController controller = new EchoController();
             while (true) {
                 System.out.print("EchoClient> ");
@@ -32,8 +34,8 @@ public class Application {
                     break;
             }
         }
-        catch(IOException exception)
-        {
+        catch(IOException exception) {
+            System.out.println(exception.getMessage());
         }
     }
 

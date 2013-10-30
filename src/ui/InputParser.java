@@ -1,5 +1,10 @@
 package ui;
 
+/**
+ * Custom user input parser. Supports input verification, command syntax 
+ * checking, command arguments parsing and help text management.
+ * @author klem
+ */
 public final class InputParser {
     /**
      * Maximum allowed length of the input
@@ -148,6 +153,7 @@ public final class InputParser {
         public int optArgCount;
         public boolean greedyLastArg;
 
+        // Pack of constructors with different argument sets
         ValidCommand(String name, String helpText) {
             this(name, helpText, 0, 0, false);
         }

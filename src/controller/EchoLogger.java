@@ -7,11 +7,29 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
+/**
+ * Custom wrapper for the log4j Logger object. Is responsible for the 
+ * initialization and log level changes of the log4j Logger.
+ * @author Danila Klimenko
+ */
 public final class EchoLogger {
+    /**
+     * Log record pattern for the log4j Logger object
+     */
     private static final String LOG_PATTERN = "%d{ISO8601} %-5p [%t] %c: %m%n";
+    /**
+     * Path to the log file
+     */
     private static final String LOG_PATH = "logs/client.log";
+    /**
+     * log4j Logger object
+     */
     private static final Logger logger = Logger.getLogger("EchoClient");
     
+    /**
+     * Initializes the internal log4j logger object
+     * @throws IOException Thrown in case the log file cannot be accessed
+     */
     public static void setupLogger() throws IOException {
         // Set default level
         logger.setLevel(Level.INFO);
